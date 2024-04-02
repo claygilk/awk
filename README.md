@@ -58,7 +58,7 @@ In order to output a csv we will need to modify our command as follows:
 awk -F "," 'BEGIN{OFS=FS}{print $2,$5}' customers.csv
 ```
 We'll cover the `BEGIN` code block as well as the `END` code block in more detail later.
-For know, just know that the code between curly braces and the `BEGIN` keyword executes before `awk` processes any lines of the input.
+For now, just know that the code between curly braces and the `BEGIN` keyword executes before `awk` processes any lines of the input.
 The line `OFS=FS` means "set the output file separator to be the same as the input file separator.
 `OFS` and `FS` are examples of built-in variables that are defined in every `awk` script. 
 We'll cover more built-in variables in the next section.
@@ -109,7 +109,7 @@ The expected output of this command:
 As we briefly saw before `FS` is a built-in variable that stores the delimiter that `awk` will use to parse each line of input.
 Just to review, the default value for this variable is a single white-space.
 In one-liners it is more common to set this variable at the command line using the `-F` flag.
-When writing a stand-alone `awk` script this variable should be assigned in the `BEGIN` block.
+When writing a stand-alone `awk` script this variable is usually assigned in the `BEGIN` block.
 
 Note, the `FS` variable can be more than one character in length, which is useful when parsing files with multi-character delimiters.
 The following snippet is an example of how to use `FS` to parse such a file.
