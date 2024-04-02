@@ -1,4 +1,4 @@
-# Introduction to `awk`
+# Just The Basics
 
 > AWK (awk /ɔːk/) is a domain-specific language designed for text processing and typically used as a data extraction and reporting tool. Like sed and grep, it is a filter, and is a standard feature of most Unix-like operating systems.
 >
@@ -265,7 +265,7 @@ Thus, unsurprisingly this operation follows the normal rules of addition.
 
 > Note: the `++` and `--` operators can be used as either prefix or postfix operators in `awk`. Their use is essentially identical to their use in other programming languages like C or Java.
 
-## Arrays in `awk`
+## Arrays in awk
 Although it does not support complicated data structures or classes, `awk` does support arrays.
 If you are familiar with arrays in other languages `awk` arrays might seem a little strange at first.
 In `awk` you don't have to declare an array before you use it.
@@ -325,7 +325,7 @@ One of the most common things to do with an array is to loop over each element a
 We will see how to do that in the following section.
 
 
-## Loops in `awk`
+## Loops in awk
 ---
 
 Like other programming languages `awk` allows you to use `for` loops and `while` loops.
