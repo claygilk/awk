@@ -163,7 +163,7 @@ This script uses a lot of the concepts we have learned, so let's review them.
 - ```NR > 1 {total+=$5}``` means: if processing any row after the first one, add the value of the fifth column to the variable `total`.
 - ```END{print "Total=" total}``` means: after processing the input file, print out the value of the variable `total`.
 
-## `awk` Script Files
+## Script Files
 ---
 
 As pointed out earlier, `awk` scripts can be written in stand-alone files.
