@@ -356,3 +356,201 @@ The start of this script is identical to the start of `arrays-2.awk`.
 It sets up an array with three elements.
 The second part of this script uses a `for` loop to iterate over each index in the array and assign it to a variable named `state`.
 In the body of the statement this variable can be used directly or it can be use as an index to access the different elements of the array.
+
+## Functions in awk
+The syntax to declare a function in awk is similar to the syntax in languages like bash and JavaScript. 
+You can use the `function` or `func` followed by the method name and parameters as shown below:
+
+```awl
+function myFunction(){}
+
+func myOtherFunction(){}
+```
+
+Functions in awk do not require a return type.
+Nor do function arguments require a type.
+And, as you might have guessed to return a value from function you use the `return` keyword followed by the value.
+
+Lets demonstrate all of this with a trivial function that adds two numbers.
+
+```awk
+BEGIN {
+    print add(1,2)
+}
+function add(x, y){
+    return x + y
+}
+```
+
+When we execute this script (using `awk -f functions-1.awk`), it should print the number `3`.
+This example also shows that unlike bash or C, functions in `awk` do not need to be declared before they are used.
+
+### Built-in Functions
+`awk` includes many helpful built in functions.
+It would be beyond the scope of this quick introduction to document all of them in detail.
+But I will include a list of some of the most useful ones and a brief description of what they do:
+
+- `rand()` - generates a random number between 0 and 1
+- `length(string)` - returns the length of a string variable
+- `tolower(string)` - converts a string to lower case
+- `toupper(string)` - converts a string to upper case
+- `gsub(regex, replacement, [,target])` - functions like `sed` to find and replace text
+- `sprintf(pattern, values...)` - format a string variable. Nearly identical to `sprintf` in C
+
+> Note: For a more comprehensive list visit https://www.gnu.org/software/gawk/manual/gawk.html#Built_002din
+
+## Conditional in awk
+We've already seen that an `awk` script is composed of zero or more conditional code blocks, but we can also use conditionals within a code block.
+Lets briefly look at how to use the `if` and `while` keywords.
+These keywords work very similar to how they work in other C-style languages, so I'll just put a brief example here so you can get a feel for the syntax.
+
+```awk
+BEGIN {
+    i = 1
+    while (i <= 15){
+        if(i % 3 == 0 && i % 5 == 0) {
+            print "fizzbuzz"
+        }
+        else if ( i % 3 == 0) {
+            print "fizz"
+        } 
+        else if ( i % 5 == 0) {
+            print "buzz"
+        } else {
+            print i
+        }
+        i++
+    }
+}
+```
+
+This example shows how to solve the (in)famous FizzBuzz problem in `awk`.
+
+## Putting it all together
+Now we know enough to be dangerous with `awk`.
+In this section we will work with a lightly larger csv file (`homes.csv`) which can be downloaded from this site: https://people.sc.fsu.edu/~jburkardt/data/csv/csv.html
+This file includes some made-up home sale data.
+
+### Example 1 - Reformatting
+Let's write some `awk` scripts to process this file.
+The first script we will look at is `homes-1.awk` which will clean-up and reformat the data.
+The imaginary purpose of this script is to reformat the data so that it is easier to compare the price of a house and the rate of tax applied.
+
+Here is the entire script:
+
+```awk
+BEGIN {
+    FS=","
+    OFS=FS
+    print "SellPrice", "TaxPercent", "TaxAmount"
+}
+
+NR > 1 {
+    sellPrice = $1*1000
+    sellPriceString = sprintf("$%d", sellPrice)
+    
+    taxAmount = $9
+    taxAmountString = sprintf("$%d", taxAmount)
+
+    taxPercent = (taxAmount / sellPrice) * 100
+    taxPercentString = sprintf("%.2f%%", taxPercent)
+    
+    print sellPriceString, taxPercentString, taxAmountString
+}
+```
+
+Let's step through this script together.
+First, in the `BEGIN` code block we set the `FS` and `OFS` variables to be a `,` since we are processing a csv and we would like the output of our script to also be a csv.
+Next, we print the new column names for our output file.
+
+In the `NR > 1` block we process all the data rows in the file.
+We convert the "Sell" column to dollars (by multiplying by 1000) then add a dollar sign on the front to make the unit clear.
+We define two variables `sellPrice` and `sellPriceString` for use later in the script.
+The former is simply an alias for the first column, which is useful so that we don't have to remember column numbers as we are coding.
+The latter is a formatted string created with the `sprintf` function.
+
+After creating these variables we will do much the same thing with the "Taxes" column.
+We alias the column with the `taxAmount` variable and we create a formated string called `taxAmountString` which includes a dollar sign. 
+
+Lastly, we calculate the tax rate on the sale by using our previously defined variables and using `sprintf` to format the output.
+
+Once all the variables have been set, we print them out in the same order as the new column names defined above.
+After running this script (`awk -f homes-1.awk homes.csv`) you should see the following output:
+
+```
+SellPrice,TaxPercent,TaxAmount
+$142000,2.23%,$3167
+$175000,2.30%,$4033
+$129000,1.14%,$1471
+...
+$247000,1.87%,$4626
+$111000,2.89%,$3205
+$133000,2.30%,$3059
+```
+
+### Example 2 - Aggregation
+The previous example demonstrates what I think `awk` does best: manipulating delimited data into a similar but different format.
+However you might find yourself needing to do more with awk.
+
+In the next example script (`homes-2.awk`) we will see how we can use `awk` to generate aggregated values from our data.
+This script will process the `homes.csv` file and generate a new file that shows the average house price when grouping by the number of rooms.
+
+Here is the script:
+
+```awk
+BEGIN {
+    FS=","
+    OFS=FS
+    print "NumberOfRooms", "AveragePrice"
+}
+NR > 1 {
+    rooms=$4
+    sellPrice=$1
+    roomNumber[rooms] = roomNumber[rooms] + 1
+    sellPriceSum[rooms] = sellPriceSum[rooms] + sellPrice
+}
+END {
+    for(r in roomNumber){
+        avg = (sellPriceSum[r] / roomNumber[r]) * 1000
+        avgFormatted = sprintf("$%.2f", avg)
+        print r, avgFormatted
+    }
+}
+```
+
+In this script we're using the some of the same techniques we used in the last script: setting the file separators in the `BEGIN` block, printing new column names and creating aliases for column numbers.
+What's new is the use of arrays.
+
+In the `NR > 1` block, we create and populate two arrays: `housesBySize` and `sellPriceSum`.
+The former stores the count of the number of houses with that number of rooms.
+For example if there were 3 houses with 6 rooms then `housesBySize[6] == 3` would be true.
+In the `sellPriceSum` array we are keeping a running total of the sale price of each size of house.
+This syntax might look a little weird, but just as a reminder you do not need to declare an array in `awk` before you start using it.
+
+Then, in the `END` block we perform some post processing on our two arrays.
+We use a `for` loop to iterate through each house size.
+In each iteration we calculate the average sale price by dividing the total sale price for all houses of a given size by the number of houses of that size.
+We then use some multiplication and `sprintf` to format the `avg` variable in a more human-friendly format.
+Lastly, we print out the two values we are interested in in the same order we printed our column names.
+
+Running this script () should produce the following output:
+
+```
+NumberOfRooms,AveragePrice
+5,$89000.00
+6,$135333.33
+7,$139636.36
+8,$162523.81
+9,$180875.00
+10,$212000.00
+11,$567000.00
+12,$212000.00
+```
+
+## Where can I learn more?
+I hope you enjoyed this brief introduction to `awk` and I hope you get the chance to use what you've learned!
+If are curious and would like to learn more I would highly recommend the following two sites.
+The first site is more succinct and good for as a quick reference. The second site is more thorough and is good if you need very detailed documentation.
+
+- https://www.grymoire.com/Unix/Awk.html
+- https://www.gnu.org/software/gawk/manual/gawk.html
