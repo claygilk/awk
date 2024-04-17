@@ -399,7 +399,7 @@ But I will include a list of some of the most useful ones and a brief descriptio
 
 > Note: For a more comprehensive list visit https://www.gnu.org/software/gawk/manual/gawk.html#Built_002din
 
-## Conditional in awk
+## Conditionals in awk
 We've already seen that an `awk` script is composed of zero or more conditional code blocks, but we can also use conditionals within a code block.
 Lets briefly look at how to use the `if` and `while` keywords.
 These keywords work very similar to how they work in other C-style languages, so I'll just put a brief example here so you can get a feel for the syntax.
@@ -425,10 +425,11 @@ BEGIN {
 ```
 
 This example shows how to solve the (in)famous FizzBuzz problem in `awk`.
+You can run this script with `awk -f conditionals-1.awk` to verify it's output.
 
 ## Putting it all together
 Now we know enough to be dangerous with `awk`.
-In this section we will work with a lightly larger csv file (`homes.csv`) which can be downloaded from this site: https://people.sc.fsu.edu/~jburkardt/data/csv/csv.html
+In this section we will work with a slightly larger csv file (`homes.csv`) which can be downloaded from this site: https://people.sc.fsu.edu/~jburkardt/data/csv/csv.html.
 This file includes some made-up home sale data.
 
 ### Example 1 - Reformatting
@@ -492,7 +493,7 @@ $133000,2.30%,$3059
 The previous example demonstrates what I think `awk` does best: manipulating delimited data into a similar but different format.
 However you might find yourself needing to do more with awk.
 
-In the next example script (`homes-2.awk`) we will see how we can use `awk` to generate aggregated values from our data.
+In the next example script (`homes-2.awk`) we will see how we can use `awk` to calculate aggregated values from our data.
 This script will process the `homes.csv` file and generate a new file that shows the average house price when grouping by the number of rooms.
 
 Here is the script:
@@ -506,14 +507,14 @@ BEGIN {
 NR > 1 {
     rooms=$4
     sellPrice=$1
-    roomNumber[rooms] = roomNumber[rooms] + 1
+    housesBySize[rooms] = housesBySize[rooms] + 1
     sellPriceSum[rooms] = sellPriceSum[rooms] + sellPrice
 }
 END {
-    for(r in roomNumber){
-        avg = (sellPriceSum[r] / roomNumber[r]) * 1000
+    for(numOfRooms in housesBySize){
+        avg = (sellPriceSum[numOfRooms] / housesBySize[numOfRooms]) * 1000
         avgFormatted = sprintf("$%.2f", avg)
-        print r, avgFormatted
+        print numOfRooms, avgFormatted
     }
 }
 ```
@@ -533,7 +534,7 @@ In each iteration we calculate the average sale price by dividing the total sale
 We then use some multiplication and `sprintf` to format the `avg` variable in a more human-friendly format.
 Lastly, we print out the two values we are interested in in the same order we printed our column names.
 
-Running this script () should produce the following output:
+Running this script (`awk -f homes-2.awk homes.csv`) should produce the following output:
 
 ```
 NumberOfRooms,AveragePrice
@@ -549,8 +550,8 @@ NumberOfRooms,AveragePrice
 
 ## Where can I learn more?
 I hope you enjoyed this brief introduction to `awk` and I hope you get the chance to use what you've learned!
-If are curious and would like to learn more I would highly recommend the following two sites.
-The first site is more succinct and good for as a quick reference. The second site is more thorough and is good if you need very detailed documentation.
+If you are curious and would like to learn more, I would highly recommend the following two sites.
+The first site is more succinct and good for as a quick reference. The second is more thorough and is good if you need very detailed documentation.
 
 - https://www.grymoire.com/Unix/Awk.html
 - https://www.gnu.org/software/gawk/manual/gawk.html
