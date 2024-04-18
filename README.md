@@ -32,7 +32,7 @@ ls -l | awk '{print $0}'
 ```
 You should notice that the output is identical to the `ls -l` command.
 This is because `$0` means *all columns*.
-So, it doesn't do much here, but later we'll see how it can be used in a more interesting way.
+So, it doesn't do much here, but it can be useful in some situations.
 
 ## Using Different Field Separators
 ---
@@ -40,6 +40,15 @@ So, it doesn't do much here, but later we'll see how it can be used in a more in
 The default field separator in `awk` is a space, but we can change this using the `-F` flag.
 For example to parse a csv we can use `-F ","`. 
 Lets demonstrate how this works using the sample `customers.csv` file.
+This file can be found in the source code of this github repository, but for convenience sake I will copy the contents here:
+
+```
+customer_id,first_nm,acct_nb,acct_opn_dt,acct_bal
+111222333,Mario,123456,2020-01-13Z,100.50
+444555666,Luigi,456789,2022-02-28Z,1500.00
+777888999,Peach,789123,2021-09-04Z,450.75
+```
+
 If we want to extract just the customers name and account balance we could use the following:
 ```shell
 awk -F "," '{print $2,$5}' customers.csv
@@ -76,6 +85,16 @@ awk -F "," '{print NF}' customers.csv
 ```
 This command isn't very interesting when used on a well-formatted csv, but it can be useful for cleaning up messy data.
 Imagine you have a file that is hundreds or thousands of lines long and you want to check if each row is formatted correctly.
+We can demonstrate this by using a malformed version of the `customers.csv` file called `customers_err.csv`.
+Again this file can be found on the github page, but I will copy it here as well:
+
+```
+customer_id,first_nm,acct_nb,acct_opn_dt,acct_bal
+111222333,Mario,123456,2020-01-13Z,100.00
+444555666,Luigi,456789,2022-02-28Z,1500,50
+777888999,Peach,789123,2021-09-04Z,450.75
+```
+
 Try running the following command to quickly find the problematic line in `customers_err.csv`.
 ```shell
 awk -F "," '{print NF}' customers_err.csv
@@ -113,7 +132,16 @@ When writing a stand-alone `awk` script this variable is usually assigned in the
 
 Note, the `FS` variable can be more than one character in length, which is useful when parsing files with multi-character delimiters.
 The following snippet is an example of how to use `FS` to parse such a file.
-The file used in this example is the same as the `customers.csv` file except the commas have been replaced with double semicolons (i.e `::`). This snippet simply prints the first column of the csv.
+The file used in this example is the same as the `customers.csv` file except the commas have been replaced with double semicolons (i.e `::`):
+
+```
+customer_id::first_nm::acct_nb::acct_opn_dt::acct_bal
+111222333::Mario::123456::2020-01-13Z::100.50
+444555666::Luigi::456789::2022-02-28Z::1500.00
+777888999::Peach::789123::2021-09-04Z::450.75
+```
+
+This snippet simply prints the first column of the csv.
 ```shell
 awk 'BEGIN{FS="::"} {print $1}' customers_multichar_delim.csv
 ```
@@ -431,6 +459,15 @@ You can run this script with `awk -f conditionals-1.awk` to verify it's output.
 Now we know enough to be dangerous with `awk`.
 In this section we will work with a slightly larger csv file (`homes.csv`) which can be downloaded from this site: https://people.sc.fsu.edu/~jburkardt/data/csv/csv.html.
 This file includes some made-up home sale data.
+This file has 50 rows so I will only include the first few rows here, but the entire file can be found in the source code of this repo.
+
+```
+Sell,List,Living,Rooms,Beds,Baths,Age,Acres,Taxes
+142,160,28,10,5,3,60,0.28,3167
+175,180,18,8,4,1,12,0.43,4033
+129,132,13,6,3,1,41,0.33,1471
+138,140,17,7,3,1,22,0.46,3204
+```
 
 ### Example 1 - Reformatting
 Let's write some `awk` scripts to process this file.
@@ -490,7 +527,7 @@ $133000,2.30%,$3059
 ```
 
 ### Example 2 - Aggregation
-The previous example demonstrates what I think `awk` does best: manipulating delimited data into a similar but different format.
+The previous example demonstrates what I think `awk` does best: manipulating tabular data into a similar but different format.
 However you might find yourself needing to do more with awk.
 
 In the next example script (`homes-2.awk`) we will see how we can use `awk` to calculate aggregated values from our data.
@@ -551,7 +588,7 @@ NumberOfRooms,AveragePrice
 ## Where can I learn more?
 I hope you enjoyed this brief introduction to `awk` and I hope you get the chance to use what you've learned!
 If you are curious and would like to learn more, I would highly recommend the following two sites.
-The first site is more succinct and good for as a quick reference. The second is more thorough and is good if you need very detailed documentation.
+The first site is more succinct and good for as a quick reference. The second is more thorough and is good if you need to consult detailed documentation.
 
 - https://www.grymoire.com/Unix/Awk.html
 - https://www.gnu.org/software/gawk/manual/gawk.html
