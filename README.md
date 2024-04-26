@@ -312,7 +312,7 @@ BEGIN {
 
 On the first line of this script the `some_array` variables is being declared, initialized and used all at once.
 Unlike column and line numbers, `awk` uses zero-indexing for its arrays.
-So the first line is setting the value of the third element of the array to the string `abc`.
+So the first line is setting the value of the third element of the array to the string `two`.
 If you run the this script(```awk -f arrays-1.awk```) you should see the following output:
 ```
 some_array[0]=
